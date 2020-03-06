@@ -87,12 +87,15 @@ def sun_rise_set(n, lo, la):
 #   ha: hour angle, in fraction of a Julian day
 #   dec: declination, in radians
 #   la: latitude of the observer on the Earth, in degree
+# Return a tuple with 2 elements:
+#   0: azimuth, measured from the north, positive to east, in degree
+#   1: altitude, in degree
 def equ2hor(ha, dec, la):
     ha_r = ha * math.pi * 2  # hour angle in radians
     la_r = radians(la) # observer latitude in radians
     A = atan2(sin(ha_r), cos(ha_r) * sin(la_r) - tan(dec) * cos(la_r))
     a = asin( sin(la_r) * sin(dec) + cos(la_r) * cos(dec) * cos(ha_r))
-    return round(degrees(A), 2)+180, round(degrees(a), 2)
+    return round(degrees(A)+180, 2), round(degrees(a), 2)
 
 # Print now in string and Julian day for city specified
 def print_now(city):
@@ -122,4 +125,28 @@ def print_sunrise(y, m, d, days, la, lo, tz_h):
         h_s = equ2hor(sun_rs[1], sun_rs[2], la) # sunset horizontal coordinates
         print(dt_rise, ",", dt_set, ",", h_r, h_s)
 
-print_sunrise(2020, 8, 20, 60, 39, 116, 8)
+#print_sunrise(2020, 8, 20, 60, 39, 116, 8)
+
+# print horizontal coordinates of the Sun for a day from sunrise to sunset
+#   y, m, d: year, month (1-12), day(1-31) of the start day
+#   slices: how many points to print except the sunrise and sunset
+#   la, lo: observer latitude/longitude
+#   tz_h: timezone correction, in hours
+def print_sun_coord(y, m, d, slices, la, lo, tz_h):
+    n = math.floor(julian.to_jd(datetime(y, m, d))) - 2451545
+    sun_rs = sun_rise_set(n, lo, la)
+    dt_rise = julian.from_jd(sun_rs[0] + tz_h/24 - sun_rs[1])  # sunrise datetime
+    dt_set = julian.from_jd(sun_rs[0] + tz_h/24 + sun_rs[1])  # sunset datetime
+    slices = math.floor(slices)
+    if (slices <= 0):
+        slices = 1
+    step = 2 * sun_rs[1] / (slices + 1)
+    for i in range(slices + 2):
+        j = sun_rs[0] + tz_h/24 - sun_rs[1] + i * step  # time as Julian day
+        h = equ2hor(i * step - sun_rs[1], sun_rs[2], la)  # horizontal coordinates
+        print(julian.from_jd(j), h)
+
+# print the Sun positions observed from Beijing (39N, 116E) at Jun 22, 2020
+# 242 time points (including sunrise and sunset)
+print_sun_coord(2020, 6, 22, 240, 39, 116, 8)
+
