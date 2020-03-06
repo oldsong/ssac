@@ -59,8 +59,9 @@ def julian_hour_angle(d, la):
     return abs(acos(cha) / (2*math.pi))
 
 # Calculate:
-#   the sunrise/sunset time, in Julian day with fraction
-#   the sunrise/sunset azimuth, measured from the south, west is positive
+#   solar transit time, in Julian day with fraction
+#   sunset hour angle, in fraction of Julian day
+#   declination of the Sun at the date, in radians
 # Input:
 #   n: number of days since Jan 1st, 2000 12:00
 #   lo: longitude west (west is negative) of the observer on the Earth, in degree
@@ -79,7 +80,19 @@ def sun_rise_set(n, lo, la):
     dec = asin(d)  # Sun declination in radians
     A_rise = atan2(sin(-ha_r), cos(-ha_r) * sin(la_r) - tan(dec) * cos(la_r))
     A_set = atan2(sin(ha_r), cos(ha_r) * sin(la_r) - tan(dec) * cos(la_r))
-    return jt - hour_angle_j, jt + hour_angle_j, degrees(A_rise), degrees(A_set)
+    #return jt - hour_angle_j, jt + hour_angle_j, degrees(A_rise), degrees(A_set)
+    return jt, hour_angle_j, dec
+
+# Convert Equatorial coordinate to horizontal
+#   ha: hour angle, in fraction of a Julian day
+#   dec: declination, in radians
+#   la: latitude of the observer on the Earth, in degree
+def equ2hor(ha, dec, la):
+    ha_r = ha * math.pi * 2  # hour angle in radians
+    la_r = radians(la) # observer latitude in radians
+    A = atan2(sin(ha_r), cos(ha_r) * sin(la_r) - tan(dec) * cos(la_r))
+    a = asin( sin(la_r) * sin(dec) + cos(la_r) * cos(dec) * cos(ha_r))
+    return round(degrees(A), 2)+180, round(degrees(a), 2)
 
 # Print now in string and Julian day for city specified
 def print_now(city):
@@ -88,20 +101,25 @@ def print_now(city):
     jd_city = julian.to_jd(d_city, fmt='jd')
     print(city, ": Julian day = ", jd_city, ", ", d_city)
 
-print_now("Europe/London")
-print_now("America/Los_Angeles")
-print_now("Asia/Shanghai")
+#print_now("Europe/London")
+#print_now("America/Los_Angeles")
+#print_now("Asia/Shanghai")
 
-for i in range(60):
-    #j = 2458913 - 2451545 + i
-    j = math.floor(julian.to_jd(datetime(2020, 8, 15))) - 2451545 + i
-    #sun_rs = sun_rise_set(j, 116+25.0/60, 39.0+55.0/60)  # location of Beijing
-    sun_rs = sun_rise_set(j, 116, 39)  # location of Beijing
-    #print(sun_rs)
-    dt_rise = julian.from_jd(sun_rs[0] + 8.0/24)  # sunrise datetime
-    dt_set = julian.from_jd(sun_rs[1] + 8.0/24)  # sunset datetime
-    ratio_day = round((dt_set - dt_rise) / timedelta(1), 2)
-    A_r = round(sun_rs[2] + 180, 2)
-    A_s = round(sun_rs[3] + 180, 2)
-    ratio_A = round((A_s - A_r) / 360, 2)
-    print(dt_rise, ",", dt_set, ",", ratio_day, ",", A_r, ",", A_s, ",", ratio_A, A_r + A_s)
+# print sunrise/sunset date time:
+#   y, m, d: year, month (1-12), day(1-31) of the start day
+#   days: number of days to print
+#   la, lo: observer latitude/longitude
+#   tz_h: timezone correction, in hours
+def print_sunrise(y, m, d, days, la, lo, tz_h):
+    for i in range(days):
+        j = math.floor(julian.to_jd(datetime(y, m, d))) - 2451545 + i
+        #sun_rs = sun_rise_set(j, 116+25.0/60, 39.0+55.0/60)  # location of Beijing
+        #sun_rs = sun_rise_set(j, 116, 39)  # location of Beijing
+        sun_rs = sun_rise_set(j, lo, la)
+        dt_rise = julian.from_jd(sun_rs[0] + tz_h/24 - sun_rs[1])  # sunrise datetime
+        dt_set = julian.from_jd(sun_rs[0] + tz_h/24 + sun_rs[1])  # sunset datetime
+        h_r = equ2hor(-sun_rs[1], sun_rs[2], la) # sunrise horizontal coordinates
+        h_s = equ2hor(sun_rs[1], sun_rs[2], la) # sunset horizontal coordinates
+        print(dt_rise, ",", dt_set, ",", h_r, h_s)
+
+print_sunrise(2020, 8, 20, 60, 39, 116, 8)
