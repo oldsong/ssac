@@ -10,21 +10,23 @@ Astronomical Algorithm, 2nd Edition, Willmann-Bell Inc. (1998) by Jean Meeus.
 
 有一个根据该书中算法写的 Python 库:
 
-https://github.com/architest/pymeeus
+[Meeus 天文算法的 Python 库](https://github.com/architest/pymeeus)
 
 它的文档:
 
-https://pymeeus.readthedocs.io/en/latest/
+[PyMeeus 库文档](https://pymeeus.readthedocs.io/en/latest/)
 
 安装该库的方法:
 
+```shell
 pip3 install pymeeus
+```
 
 但要使用该库似乎还是要了解不少概念. 另外一个 GitHub 项目:
 
 https://github.com/pavolgaj/AstroAlgorithms4Python
 
-可能更容易用一些. 
+可能更容易用一些, 但我看其中 moon 的部分, 没看懂, 也许是计算的某个具体时间点的实际例子.
 
 ### 参考网站1:
 
@@ -38,7 +40,9 @@ https://www.esrl.noaa.gov/gmd/grad/solcalc/calcdetails.html
 
 计算月球和太阳即时赤道坐标系位置的 JavaScript: 
 
-http://www.stargazing.net/kepler/jsmoon.html
+[JavaScript 计算月球太阳赤道坐标](http://www.stargazing.net/kepler/jsmoon.html)
+
+从赤经赤纬计算出本地的地平坐标还要另外计算(见下).
 
 ### 参考书2:
 
@@ -102,10 +106,11 @@ pip3 install pytz
 
 https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones
 
-我们会用到:
+例如:
 
  - America/New\_York
  - America/Los\_Ageles
+ - Asia/Shanghai
 
 ## 用户界面 User Interface
 
@@ -120,7 +125,7 @@ https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones
 
 但只能显示一行. 如果想要比较自由地控制在屏幕指定位置显示, 可以使用 ANSI Escape Code:
 
-[ANSI escape code - Wikipedia] (https://en.wikipedia.org/wiki/ANSI_escape_code)
+[ANSI escape code - Wikipedia](https://en.wikipedia.org/wiki/ANSI_escape_code)
 
 这个 ANSI Escape Code 更简要一些，但没有 Wikipedia 上的全:
 
@@ -188,7 +193,7 @@ tkinter 缺少一个自带的日期时间控件, 可能可以用这个:
 ---
 JPL 会发布轨道参数及算法: 
 
-https://en.wikipedia.org/wiki/Jet\_Propulsion\_Laboratory\_Development\_Ephemeris
+[JPL 星历](https://en.wikipedia.org/wiki/Jet_Propulsion_Laboratory_Development_Ephemeris)
 
 https://naif.jpl.nasa.gov/naif/index.html
 
