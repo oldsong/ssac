@@ -115,7 +115,7 @@ def print_now(city):
 #   tz_h: timezone correction, in hours
 def print_sunrise(y, m, d, days, la, lo, tz_h):
     for i in range(days):
-        j = math.floor(julian.to_jd(datetime(y, m, d))) - 2451545 + i
+        j = round(julian.to_jd(datetime(y, m, d, hour=12)) - 2451545 + i)
         #sun_rs = sun_rise_set(j, 116+25.0/60, 39.0+55.0/60)  # location of Beijing
         #sun_rs = sun_rise_set(j, 116, 39)  # location of Beijing
         sun_rs = sun_rise_set(j, lo, la)
@@ -133,7 +133,7 @@ def print_sunrise(y, m, d, days, la, lo, tz_h):
 #   la, lo: observer latitude/longitude
 #   tz_h: timezone correction, in hours
 def print_sun_coord(y, m, d, slices, la, lo, tz_h):
-    n = math.floor(julian.to_jd(datetime(y, m, d))) - 2451545
+    n = round(julian.to_jd(datetime(y, m, d, hour=12) - timedelta(hours=tz_h)) - 2451545)
     sun_rs = sun_rise_set(n, lo, la)
     dt_rise = julian.from_jd(sun_rs[0] + tz_h/24 - sun_rs[1])  # sunrise datetime
     dt_set = julian.from_jd(sun_rs[0] + tz_h/24 + sun_rs[1])  # sunset datetime
