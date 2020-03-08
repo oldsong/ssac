@@ -107,69 +107,84 @@ https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones
  - America/New\_York
  - America/Los\_Ageles
 
+## 用户界面 User Interface
+
+### 字符界面
+
+如果用普通的 print, 每秒钟显示一行，则会造成屏幕上大量的输出，很难看。
+
 ---
+最简单的显示数字钟, 完全是用 print 输出, 但带 end, flush 等参数, 回车而不换行: 
+
+[StackOverflow terminal digital clock](https://stackoverflow.com/questions/37515587/run-a-basic-digital-clock-in-the-python-shell)
+
+但只能显示一行. 如果想要比较自由地控制在屏幕指定位置显示, 可以使用 ANSI Escape Code:
+
+[ANSI escape code - Wikipedia] (https://en.wikipedia.org/wiki/ANSI_escape_code)
+
+这个 ANSI Escape Code 更简要一些，但没有 Wikipedia 上的全:
+
+[常用 ANSI Escape Code](http://ascii-table.com/ansi-escape-sequences.php)
+
+下面这个库应该更方便:
+
+[Python ANSI Escape](https://github.com/kodie/ansiescapes)
+
+它可以用 pip 安装:
+
+pip3 install ansiescapes
+
+如果要显示颜色用下面这个库更方便:
+
+[Python escape 设置字符颜色及效果](https://github.com/skabbass1/escape)
+
+Python 中有直接得到终端尺寸的函数在 shutil 模块中:
+
+[Python shutil.get\_terminal\_size() 函数](https://docs.python.org/3/library/shutil.html#shutil.get_terminal_size)
+
+取得终端尺寸之后就可以计算如何居中显示了.
+
+---
+有一些更强大的字符界面库, 可以做出类似 GUI 的效果, 但复杂不少。
+
 Python 的 Console UI 库 Urwid
 
-http://urwid.org/
+[Python Urwid](http://urwid.org/)
 
+```shell
 pip3 install urwid
+```
 
----
-另一个库, 优点是说做简单的事情非常快, 不像 urwid 是传统的事件驱动型
+另一个库 npyscreen, 优点是说做简单的事情非常快, 不像 urwid 是传统的事件驱动型
 
 pip3 install npyscreen
 
 文档在: 
 
-https://npyscreen.readthedocs.io/index.html
+[Python npyscreen doc](https://npyscreen.readthedocs.io/index.html)
 
----
-最简单的显示数字钟, 完全是用 print 输出: 
+### GUI 界面
+用 Python 的 Tk 库 tkinter 似乎也不难, 比如下面这个数字时钟的例子: 
 
-https://stackoverflow.com/questions/37515587/run-a-basic-digital-clock-in-the-python-shell
+[simple Python tkinter digital clock](https://www.geeksforgeeks.org/python-create-a-digital-clock-using-tkinter/)
 
----
-用 tkinter 似乎也很简单: 
+下面这个稍稍装饰了一下: 
 
-https://www.geeksforgeeks.org/python-create-a-digital-clock-using-tkinter/
+[Python tkinter digital clock with little style](https://www.sourcecodester.com/tutorials/python/11402/python-simple-digital-clock.html)
 
-下面这个好像稍装饰了一下: 
+在 Windows 中 tkinter 似乎是自带的, 在 Linux 中可能要安装一下:
 
-https://www.sourcecodester.com/tutorials/python/11402/python-simple-digital-clock.html
+```shell
+sudo apt install python3-tk
+```
 
----
-终端模式下, 可以用 ANSI Escape 字符来控制显示位置. 有个库: 
+***Modern Tkinter for Busy Python Developers*** 这本书不错, 其 PDF 版在本目录中可以找到.
 
-https://github.com/kodie/ansiescapes
+tkinter 缺少一个自带的日期时间控件, 可能可以用这个:
 
-pip3 install ansiescapes
+[tkcalendar 的 DateEntry](https://tkcalendar.readthedocs.io/en/stable/DateEntry.html)
 
-下面这个获得当前终端的尺寸, 如果想居中显示之类的可以参考: 
-
-https://stackoverflow.com/questions/40931467/how-can-i-manually-get-my-terminal-to-return-its-character-size
-
-其中那个取光标位置没十分搞懂. 它其实是用了个 ANSI 转义码 6n, 把当前光标位置显示到某地方效果等同于
-用键盘输入写进了东西, 所以接着就可以从标准输出读进来. 这个 6n 转议码在 Wikipedia 里有点说明, 但没
-完全看明白. 而且对 sys.stdin 这个迭代器的 next 输出再 repr 下然后显示时好像还带有转义字符. 而且奇
-怪的是程序不会退出继续跑. 哦, 明白了: 相当于键盘输入了序列 ESC[n;mR, 其中n是行数, m是列数, 另外迭
-代器没返回是因为还没回车
-
-但 Python 中有直接得到终端尺寸的函数在 shutil 模块中: 
-
-https://docs.python.org/3/library/shutil.html#shutil.get\_terminal\size
-
-一些 ANSI Escape Code 可以看: 
-
-http://ascii-table.com/ansi-escape-sequences.php
-
-在 Wikipedia 上的应该比较全: 
-
-https://en.wikipedia.org/wiki/ANSI\_escape\_code
-
-如果要显示颜色可以用下面这个库: 
-
-https://github.com/skabbass1/escape
-
+## 备忘
 ---
 JPL 会发布轨道参数及算法: 
 
@@ -211,3 +226,4 @@ latitude, longitude = 52.5061, 13.358
 tf.timezone_at(lng=longitude, lat=latitude) # returns 'Europe/Berlin'
 ```
 
+这个库挺大的, 因为它实际上包含很多多边形数据用于判断时区. 问题在于它对于很多地方会返回空, 可能大部分是在公海, 所以如果返回空就按经度进行计算: 每 15 度是一个时区的中央经线, 中央经线左右各 7.5 度是同一个时区.
