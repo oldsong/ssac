@@ -148,5 +148,5 @@ def print_sun_coord(y, m, d, slices, la, lo, tz_h):
 
 # print the Sun positions observed from Beijing (39N, 116E) at Jun 22, 2020
 # 242 time points (including sunrise and sunset)
-print_sun_coord(2020, 6, 22, 240, 39, 116, 8)
+#print_sun_coord(2020, 6, 22, 240, 39, 116, 8)
 
