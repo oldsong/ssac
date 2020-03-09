@@ -102,6 +102,14 @@ def get_std_timezone(lng):
     if ((lng % 15) > 7.5): hours = hours + 1
     return datetime.timezone(datetime.timedelta(hours=hours))
 
+# Julian.to_jd() ignores timezone, this is for timezone aware datetime
+def myjulian_to_jd(d_with_tz):
+    return julian.to_jd(d_with_tz.astimezone(datetime.timezone.utc))
+
+# Julian.from_jd() return naive UTC datetime
+def myjulian_from_jd(j, tz):
+    return julian.from_jd(j).replace(tz=datetime.timezone.utc).replace(tz=tz)
+
 # Get timezone, datetime objects of the noon of the specified local date
 # in local timezone and in UTC
 def get_noons(year, month, day, lat, lon):
@@ -121,8 +129,40 @@ def get_noons(year, month, day, lat, lon):
     d_utc = d_local.astimezone(tz=datetime.timezone.utc)  # 转换成 UTC 时间
     return {'tz': tz, 'd_local': d_local, 'd_utc': d_utc}
 
+# update all the widgets
+def update(info):
+
+# XXX imported from sunclock.py, just for reference
+# Calculate, result as a tuple:
+#   solar transit time, in Julian day with fraction
+#   sunset hour angle, in fraction of Julian day
+#   declination of the Sun at the date, in radians
+# Input:
+#   n: number of days since Jan 1st, 2000 12:00
+#   lo: longitude of the observer on the Earth, west is negative, in degree
+#   la: latitude of the observer on the Earth, north is positive, in degree
+#def sun_rise_set(n, lo, la):
+
+# XXX imported from sunclock.py, just for reference
+# Convert Equatorial coordinate to horizontal
+#   ha: hour angle, in fraction of a Julian day
+#   dec: declination, in radians
+#   la: latitude of the observer on the Earth, in degree
+# Return a tuple with 2 elements:
+#   0: azimuth, measured from the north, positive to east, in degree
+#   1: altitude, in degree
+# def equ2hor(ha, dec, la):
+
 # ============= main =============
  
+simu_pre_rise_hour = 2  # we simulate 2 hours pre sunrise
+simu_aft_set_hour = 2  # simulate 2 hours after sunset, then jump to next sunrise - pre hour
+simu_tick_ms = 200  # microseconds of simulating tick
+simu_tick_step_minutes = 5  # simulating minutes per tick
+
+simu_curr_day = 0  # the day we are simulating
+simu_curr_tick = 0 # the tick number at the day we are simulating
+
 if __name__ == '__main__':
     year, month, day = 2020, 3, 9  # simulation start date
     simulate_days = 3
@@ -136,8 +176,10 @@ if __name__ == '__main__':
     # calcuate number of days since Jan 1st, 2000 12:00 UTC
     n = round(julian.to_jd(noons['d_utc']) - julian.to_jd(datetime.datetime(year, month, day, hour=12)))
     sun = []
-    for i in range(simulate_days + 1):
+    for i in range(simulate_days + 1):   # calculate sunrise/sunset data
         sun.append(sun_rise_set(n + i, lon, lat))
+
     location_var.set("Lat: %s, Lon: %s" % (lat, lon))
     tick(noons['tz'])
     root.mainloop()
+
