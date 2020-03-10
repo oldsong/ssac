@@ -52,6 +52,14 @@ Practical Astronomy with your Calculator or Spreadsheet, 4th Edition, Cambridge 
 
 https://www.cambridge.org/cn/academic/subjects/physics/amateur-and-popular-astronomy/practical-astronomy-your-calculator-or-spreadsheet-4th-edition?format=PB
 
+### 一个比较直观的 Python 库
+
+[Astral Python 库](https://astral.readthedocs.io/en/latest/index.html)
+
+这个文档不太全, 还是要看在 GitHub 上的源码.
+
+[GitHub 上的 Astral Python](https://github.com/sffjunkie/astral)
+
 ### Wikipedia 上的日出/日落方程
 
 [Sunrise equation - Wikipedia](https://en.wikipedia.org/wiki/Sunrise_equation)
@@ -76,7 +84,11 @@ https://equation-of-time.info/calculating-the-equation-of-time
 
 https://github.com/dannyzed/julian
 
+```shell
 pip3 install julian
+```
+
+注意该库忽略日期时间中的时区信息.
 
 ### 从赤道坐标系转到地平坐标系
 
@@ -100,7 +112,9 @@ https://docs.python.org/3/library/datetime.html
 
 有个 pytz 库
 
+```shell
 pip3 install pytz
+```
 
 列出所有其包含的时区名: 
 
@@ -137,7 +151,9 @@ https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones
 
 它可以用 pip 安装:
 
+```shell
 pip3 install ansiescapes
+```
 
 如果要显示颜色用下面这个库更方便:
 
@@ -162,7 +178,9 @@ pip3 install urwid
 
 另一个库 npyscreen, 优点是说做简单的事情非常快, 不像 urwid 是传统的事件驱动型
 
+```shell
 pip3 install npyscreen
+```
 
 文档在: 
 
@@ -221,7 +239,9 @@ http://www.iausofa.org/
 
 https://github.com/MrMinimal64/timezonefinder
 
+```shell
 pip3 install timezonefinder
+```
 
 ```python
 from timezonefinder import TimezoneFinder
