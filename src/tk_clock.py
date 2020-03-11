@@ -6,9 +6,19 @@ from sunclock import sun_rise_set, equ2hor
 import pytz
 from timezonefinder import TimezoneFinder
 
-width = 600
-height = 400
+width = 800
+height = 600
 
+## ======= Canvas related sizes  =============
+width_canvas, height_canvas = 700, 500
+pad_left, pad_right, pad_top, pad_bottom = 60, 20, 20, 60
+# should be OK for 30N < observer latitude < 50N
+# NOTE: south azimuth is 0, positive to west, so we should -180 from equ2hor() result
+azimuth_max, altitude_max = 135, 90
+ratio_x = (width_canvas - pad_left - pad_right) / (azimuth_max * 2)
+ratio_y = (height_canvas - pad_top - pad_bottom) / altitude_max
+
+# =========== Masters ===========
 root = Tk()
 root.title("Sunrise Simulator Alarm Clock")
 #root.geometry("%dx%d+%d+%d" % (width, height, x, y))
@@ -86,9 +96,8 @@ sunset_countdown_lbl = ttk.Label(content, textvariable=sunset_countdown_var)
 sunset_countdown_lbl.grid(column=4, row=2)
 
 # =============== Row 3 ==============
-canvas = Canvas(content)
-canvas.grid(column=0, row=3)
-canvas.create_line((0,0,100,100))
+canvas = Canvas(content, width=width_canvas, height=height_canvas)
+canvas.grid(column=0, row=3, columnspan=5)
 
 # ============== METHODS ==================
 
@@ -136,6 +145,26 @@ def get_noons(year, month, day, lat, lon):
     d_utc = d_local.astimezone(tz=datetime.timezone.utc)  # 转换成 UTC 时间
     return {'tz': tz, 'd_local': d_local, 'd_utc': d_utc}
 
+# map a horizontal (azimuthz, altitude) coordinate to a rectangle
+def map_hor_to_rect(az, alt):
+    x = (az + azimuth_max) * ratio_x + pad_left
+    y = (90 - alt) * ratio_y +pad_top
+    return (x, y)
+
+# draw the sun position graph background
+def graph_init():
+    global id_sun
+    canvas.create_rectangle((pad_left, pad_top, width_canvas - pad_right, height_canvas - pad_bottom))
+    for i in range(simulate_days):   # draw sun track for every day
+        step = (sun[i]['j_set'] - sun[i]['j_rise']) / simu_track_segments
+    #coords = canvas.coords(canvas.create_line(12,14,34,55,89,333))
+    #print("line coords", coords, type(coords), flush=True)
+    h = equ2hor(sun[0]['j_rise_ah'], sun[0]['dec'], obsv_lat)
+    c = map_hor_to_rect(h[0] - 180, h[1])
+    x, y = c[0], c[1]
+    id_sun = canvas.create_oval(x - simu_sun_radius, y - simu_sun_radius, x + simu_sun_radius,
+            y + simu_sun_radius, fill='red', outline='yellow', state='hidden')
+
 # update all the widgets
 def update():
     global simu_curr_tick, simu_curr_day
@@ -147,6 +176,17 @@ def update():
 
     # current Julian day
     j = sun[simu_curr_day]['j_start'] + simu_curr_tick*simu_tick_step_j
+
+    ah = j - sun[simu_curr_day]['j_transit'] # current local Sun angle hour
+    h = equ2hor(ah, sun[simu_curr_day]['dec'], obsv_lat)  # Sun horizontal coords
+    if (h[1] < -0.83):  # hide the Sun if it is below the horizon
+        canvas.itemconfigure(id_sun, state='hidden')
+    else:
+        c = map_hor_to_rect(h[0] - 180, h[1])  # we set south = 0
+        x0, y0 = c[0] - simu_sun_radius, c[1] - simu_sun_radius
+        x1, y1 = c[0] + simu_sun_radius, c[1] + simu_sun_radius
+        canvas.coords(id_sun, x0, y0, x1, y1)
+        canvas.itemconfigure(id_sun, state='normal')
 
     clock_var.set(myjulian_from_jd(j, noons['tz']).strftime('%c %Z'))
     if j < sun[simu_curr_day]['j_rise'] or j > sun[simu_curr_day]['j_set']:
@@ -211,36 +251,41 @@ simu_aft_set_j = simu_aft_set_hour / 24  # in Julian day
 simu_tick_ms = 200  # microseconds of simulating tick
 simu_tick_step_minutes = 5  # simulating minutes per tick
 simu_tick_step_j = simu_tick_step_minutes / 1440  # Julian day per tick
+simu_track_segments = 20  # segments of sun position curve, should be even number
+simu_sun_radius = 8 # radius of sun disc in the graph
 
+# these 2 globals will be modified by tick
 simu_curr_day = 0  # the day we are simulating
 simu_curr_tick = 0 # the tick number at the day we are simulating
 
 year, month, day = 2020, 3, 9  # simulation start date
 simulate_days = 3
-lat, lon = 51, 0.1   # London
-lat, lon = 39, 170    #
-lat, lon = 39, 179    #
-lat, lon = 39, 116    # Beijing
-lat, lon = 34, -118   # Los Angles
+obsv_lat, obsv_lon = 51, 0.1   # London
+obsv_lat, obsv_lon = 39, 170    #
+obsv_lat, obsv_lon = 39, 179    #
+obsv_lat, obsv_lon = 39, 116    # Beijing
+obsv_lat, obsv_lon = 34, -118   # Los Angles
 
 if __name__ == '__main__':
-    noons = get_noons(year, month, day, lat, lon)  # noon of the simulation start day
-    print(noons)
+    noons = get_noons(year, month, day, obsv_lat, obsv_lon)  # noon of the simulation start day
     # calcuate number of days since Jan 1st, 2000 12:00 UTC
     n = round(julian.to_jd(noons['d_utc']) - julian.to_jd(datetime.datetime(2000, 1, 1, hour=12)))
     sun = []
     for i in range(simulate_days + 1):   # calculate sunrise/sunset data
-        s = sun_rise_set(n + i, lon, lat)
-        print("j_transit: ", s[0], myjulian_from_jd(s[0], noons['tz']).strftime('%c %Z'), flush=True)
+        s = sun_rise_set(n + i, obsv_lon, obsv_lat)
         sun.append({
+            'j_transit': s[0],  # Sun transit time in Julian day
             'j_rise': s[0] - s[1],  # sunrise time in Julian day
             'j_set': s[0] + s[1],   # sunset time in Julian day
             'j_start': s[0] - s[1] - simu_pre_rise_j,  # simulate start time in Julian day
             'j_stop': s[0] + s[1] + simu_aft_set_j, # simulate stop time in Julian day
-            'j_total': 2 * s[1] + simu_pre_rise_j + simu_aft_set_j  # time to simulate at this day
+            'j_total': 2 * s[1] + simu_pre_rise_j + simu_aft_set_j,  # time to simulate at this day
+            'j_rise_ah': - s[1],  # local sunrise Angle Hour in fraction of a Julian day
+            'dec': s[2],  # declination of the Sun
             })
 
-    location_var.set("Lat: %s, Lon: %s" % (lat, lon))
+    location_var.set("Lat: %s, Lon: %s" % (obsv_lat, obsv_lon))
+    graph_init()
     tick()
     root.mainloop()
 
