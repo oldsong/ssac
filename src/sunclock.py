@@ -95,7 +95,7 @@ def equ2hor(ha, dec, la):
     la_r = radians(la) # observer latitude in radians
     A = atan2(sin(ha_r), cos(ha_r) * sin(la_r) - tan(dec) * cos(la_r))
     a = asin( sin(la_r) * sin(dec) + cos(la_r) * cos(dec) * cos(ha_r))
-    return round(degrees(A)+180, 2), round(degrees(a), 2)
+    return degrees(A)+180, degrees(a)
 
 # Print now in string and Julian day for city specified
 def print_now(city):
