@@ -1,3 +1,4 @@
+import argparse
 from tkinter import *
 from tkinter import ttk
 import datetime
@@ -221,6 +222,26 @@ obsv_lat, obsv_lon = 39, 116    # Beijing
 obsv_lat, obsv_lon = 34, -118   # Los Angles
 
 if __name__ == '__main__':
+    # get simulation parameters from command line arguments
+    parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock for 30-50 degree north.')
+    parser.add_argument('-y', '--year', help='year of start date (1900-2100)', type=int, metavar='YEAR', choices=range(1900,2101), default=simu_year)
+    parser.add_argument('-m', '--month', help='month of start date (1-12)', type=int, metavar='MONTH', choices=range(1, 13), default=simu_month)
+    parser.add_argument('-d', '--day', help='day of start date (1-31)', type=int, metavar='DAY', choices=range(1, 32), default=simu_day)
+    parser.add_argument('--days', help='number of days to simulate (1-365)', type=int, metavar='DAYS', choices=range(1, 366), default=simu_days)
+    parser.add_argument('--int', help='number of days between each simulating days (1-365)', type=int, metavar='INT', choices=range(1, 366), default=simu_day_interval)
+    parser.add_argument('--lat', help='observer latitude (30.0-50.0)', type=float, default=obsv_lat)
+    parser.add_argument('--lon', help='observer longitude (-180.0-180.0)', type=float, default=obsv_lon)
+    args = parser.parse_args()
+    if args.lat < 30 or args.lat > 50:
+        print("Sorry, we can only deal with observer latitude between 30N and 50N")
+        exit(1)
+    if args.lon < -180 or args.lon > 180:
+        print("Sorry, observer longitude must be between -180 and 180")
+        exit(1)
+    simu_year, simu_month, simu_day = args.year, args.month, args.day
+    simu_days, simu_day_interval = args.days, args.int
+    obsv_lat, obsv_lon = args.lat, args.lon
+
     # get noon of the simulation start day and timezone
     noons = get_noons(simu_year, simu_month, simu_day, obsv_lat, obsv_lon)
     # calcuate number of days since Jan 1st, 2000 12:00 UTC
