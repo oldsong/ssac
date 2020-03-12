@@ -14,12 +14,18 @@ lat, lon = 39, 179    #
 lat, lon = 34, -118   # Los Angles
 
 parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock.')
-parser.add_argument('-y', '--year', help='year of start date', type=int, default=year)
-parser.add_argument('-m', '--month', help='month of start date (1-12)', type=int, default=month)
-parser.add_argument('-d', '--day', help='day of start date (1-31)', type=int, default=day)
-parser.add_argument('--lat', help='observer latitude (30.0-50.0)', type=float, default=lat)
+parser.add_argument('-y', '--year', help='year of start date', type=int, metavar='YEAR', choices=range(1900,2101), default=year)
+parser.add_argument('-m', '--month', help='month of start date (1-12)', type=int, metavar='MONTH', choices=range(1, 13), default=month)
+parser.add_argument('-d', '--day', help='day of start date (1-31)', type=int, metavar='DAY', choices=range(1, 32), default=day)
+parser.add_argument('--lat', help='observer latitude (-65.7-65.7)', type=float, default=lat)
 parser.add_argument('--lon', help='observer longitude (-180.0-180.0)', type=float, default=lon)
 args = parser.parse_args()
+if args.lat < -65.7 or args.lat > 65.7:
+    print("Sorry, please chose latitude between -65.7 and 65.7.")
+    exit(1)
+if args.lon < -180 or args.lon > 180:
+    print("Sorry, please chose longitude between -180 and 180.")
+    exit(1)
 year, month, day = args.year, args.month, args.day
 lat, lon = args.lat, args.lon
 
