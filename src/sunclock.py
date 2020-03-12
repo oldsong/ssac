@@ -2,7 +2,6 @@ from math import sin, cos, tan, asin, acos, atan2, pi, radians, degrees
 import math
 import julian
 from datetime import datetime, timedelta
-import pytz
 
 # Return approximation of local mean solar time noon, expressed as a J2000 Julian day
 # (number of days since Jan 1st, 2000 12:00) with day fration, leap seconds considered
@@ -97,17 +96,6 @@ def equ2hor(ha, dec, la):
     a = asin( sin(la_r) * sin(dec) + cos(la_r) * cos(dec) * cos(ha_r))
     return degrees(A)+180, degrees(a)
 
-# Print now in string and Julian day for city specified
-def print_now(city):
-    tz_city = pytz.timezone(city)
-    d_city = datetime.now(tz_city)
-    jd_city = julian.to_jd(d_city, fmt='jd')
-    print(city, ": Julian day = ", jd_city, ", ", d_city)
-
-#print_now("Europe/London")
-#print_now("America/Los_Angeles")
-#print_now("Asia/Shanghai")
-
 # print sunrise/sunset date time:
 #   y, m, d: year, month (1-12), day(1-31) of the start day
 #   days: number of days to print
@@ -116,8 +104,6 @@ def print_now(city):
 def print_sunrise(y, m, d, days, la, lo, tz_h):
     for i in range(days):
         j = round(julian.to_jd(datetime(y, m, d, hour=12)) - 2451545 + i)
-        #sun_rs = sun_rise_set(j, 116+25.0/60, 39.0+55.0/60)  # location of Beijing
-        #sun_rs = sun_rise_set(j, 116, 39)  # location of Beijing
         sun_rs = sun_rise_set(j, lo, la)
         dt_rise = julian.from_jd(sun_rs[0] + tz_h/24 - sun_rs[1])  # sunrise datetime
         dt_set = julian.from_jd(sun_rs[0] + tz_h/24 + sun_rs[1])  # sunset datetime
@@ -125,7 +111,7 @@ def print_sunrise(y, m, d, days, la, lo, tz_h):
         h_s = equ2hor(sun_rs[1], sun_rs[2], la) # sunset horizontal coordinates
         print(dt_rise, ",", dt_set, ",", h_r, h_s)
 
-#print_sunrise(2020, 8, 20, 60, 39, 116, 8)
+#print_sunrise(2020, 8, 20, 30, 34.4, -119.8, -8)
 
 # print horizontal coordinates of the Sun for a day from sunrise to sunset
 #   y, m, d: year, month (1-12), day(1-31) of the start day
@@ -146,7 +132,7 @@ def print_sun_coord(y, m, d, slices, la, lo, tz_h):
         h = equ2hor(i * step - sun_rs[1], sun_rs[2], la)  # horizontal coordinates
         print(julian.from_jd(j), h)
 
-# print the Sun positions observed from Beijing (39N, 116E) at Jun 22, 2020
+# print the Sun positions observed from UCSB (34.4N, -119.8E) at Jun 22, 2020
 # 242 time points (including sunrise and sunset)
-#print_sun_coord(2020, 6, 22, 240, 39, 116, 8)
+#print_sun_coord(2020, 6, 22, 240, 34.4, -119.8, -7)
 

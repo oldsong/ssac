@@ -11,7 +11,7 @@ year, month, day = 2020, 3, 9
 lat, lon = 51, 0.1   # London
 lat, lon = 39, 170    # 
 lat, lon = 39, 179    # 
-lat, lon = 34, -118   # Los Angles
+lat, lon = 34.4, -119.8   # UCSB
 
 parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock.')
 parser.add_argument('-y', '--year', help='year of date', type=int, metavar='YEAR', choices=range(1900,2101), default=year)

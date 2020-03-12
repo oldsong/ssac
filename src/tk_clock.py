@@ -14,7 +14,7 @@ simu_aft_set_j = simu_aft_set_hour / 24  # convert to Julian day
 simu_tick_ms = 80  # microseconds of simulating tick
 simu_tick_step_minutes = 15  # simulating minutes per tick
 simu_tick_step_j = simu_tick_step_minutes / 1440  # Julian day per tick
-simu_track_segments = 24  # segments of sun position curve, even number is better I guess
+simu_track_segments = 32  # segments of sun position curve, even number is better I guess
 simu_sun_radius = 7 # radius of sun disc in the graph
 
 # these 2 globals will be modified by tick
@@ -22,8 +22,8 @@ simu_curr_day = 0  # the day we are simulating
 simu_curr_tick = 0 # the tick number at the day we are simulating
 
 ## ===== Canvas related sizes ======
-width_canvas, height_canvas = 600, 400
-pad_left, pad_right, pad_top, pad_bottom = 60, 20, 20, 60  # for X, Y labels and beauty
+width_canvas, height_canvas = 600, 320
+pad_left, pad_right, pad_top, pad_bottom = 45, 20, 20, 35  # for X, Y labels and beauty
 # should be OK for 30N < observer latitude < 50N
 # NOTE: we set south azimuth is 0, positive to west, so we should -180 from equ2hor() result
 azimuth_max, altitude_max = 135, 90
@@ -61,7 +61,7 @@ sunset_time_lbl.grid(column=1, row=1)
 # geolocation
 location_var = StringVar()
 location_lbl = ttk.Label(content, relief="sunken", font=('times', 16 , 'bold'),
-        textvariable=location_var, width=22, anchor="center")
+        textvariable=location_var, width=18, anchor="center")
 location_lbl.grid(column=2, row=1, sticky=E, padx=10)
 
 # ======= Row 2: the canvas ======
@@ -215,25 +215,21 @@ simu_year, simu_month, simu_day = 2019, 12, 21  # simulation start date
 simu_days = 7  # how many days to simulate
 simu_day_interval = 30 # interval between each simulating day
 
-obsv_lat, obsv_lon = 51, 0.1   # London
-obsv_lat, obsv_lon = 39, 170    #
-obsv_lat, obsv_lon = 39, 179    #
-obsv_lat, obsv_lon = 39, 116    # Beijing
-obsv_lat, obsv_lon = 34, -118   # Los Angles
+obsv_lat, obsv_lon = 34.4, -119.8   # UCSB
 
 if __name__ == '__main__':
     # get simulation parameters from command line arguments
-    parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock for 30-50 degree north.')
+    parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock for latitude 24N - 55N.')
     parser.add_argument('-y', '--year', help='year of start date (1900-2100)', type=int, metavar='YEAR', choices=range(1900,2101), default=simu_year)
     parser.add_argument('-m', '--month', help='month of start date (1-12)', type=int, metavar='MONTH', choices=range(1, 13), default=simu_month)
     parser.add_argument('-d', '--day', help='day of start date (1-31)', type=int, metavar='DAY', choices=range(1, 32), default=simu_day)
     parser.add_argument('--days', help='number of days to simulate (1-365)', type=int, metavar='DAYS', choices=range(1, 366), default=simu_days)
     parser.add_argument('--int', help='number of days between each simulating days (1-365)', type=int, metavar='INT', choices=range(1, 366), default=simu_day_interval)
-    parser.add_argument('--lat', help='observer latitude (30.0-50.0)', type=float, default=obsv_lat)
+    parser.add_argument('--lat', help='observer latitude (24-55)', type=float, default=obsv_lat)
     parser.add_argument('--lon', help='observer longitude (-180.0-180.0)', type=float, default=obsv_lon)
     args = parser.parse_args()
-    if args.lat < 30 or args.lat > 50:
-        print("Sorry, we can only deal with observer latitude between 30N and 50N")
+    if args.lat < 24 or args.lat > 55:
+        print("Sorry, we can only deal with observer latitude between 24N and 55N")
         exit(1)
     if args.lon < -180 or args.lon > 180:
         print("Sorry, observer longitude must be between -180 and 180")
@@ -260,7 +256,7 @@ if __name__ == '__main__':
             'dec': s[2],  # declination of the Sun
             })
 
-    location_var.set("Lat: %s, Lon: %s" % (round(obsv_lat, 2), round(obsv_lon, 2)))
+    location_var.set("%s° N, %s° E" % (round(obsv_lat, 2), round(obsv_lon, 2)))
     graph_init()
     tick()
     root.mainloop()
