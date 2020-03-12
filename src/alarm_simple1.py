@@ -1,3 +1,4 @@
+import argparse
 import time
 import julian
 import pytz
@@ -6,18 +7,27 @@ import datetime
 from sunclock import sun_rise_set, equ2hor
 from timezonefinder import TimezoneFinder
 
+year, month, day = 2020, 3, 9
+lat, lon = 51, 0.1   # London
+lat, lon = 39, 170    # 
+lat, lon = 39, 179    # 
+lat, lon = 34, -118   # Los Angles
+
+parser = argparse.ArgumentParser(description='Sunrise simulator alarm clock.')
+parser.add_argument('-y', '--year', help='year of start date', type=int, default=year)
+parser.add_argument('-m', '--month', help='month of start date (1-12)', type=int, default=month)
+parser.add_argument('-d', '--day', help='day of start date (1-31)', type=int, default=day)
+parser.add_argument('--lat', help='observer latitude (30.0-50.0)', type=float, default=lat)
+parser.add_argument('--lon', help='observer longitude (-180.0-180.0)', type=float, default=lon)
+args = parser.parse_args()
+year, month, day = args.year, args.month, args.day
+lat, lon = args.lat, args.lon
+
 # Calculate timezone from longitude, return a timezone.timezone object
 def get_timezone(lon):
     hours = lon // 15
     if ((lon % 15) > 7.5): hours = hours + 1
     return datetime.timezone(timedelta(hours=hours))  # standard timezone
-
-year, month, day = 2020, 3, 9
-lat, lon = 51, 0.1   # London
-lat, lon = 39, 170    # 
-lat, lon = 39, 179    # 
-lat, lon = 39, 116    # Beijing
-lat, lon = 34, -118   # Los Angles
 
 # first try to find the timezone from observer longtitude
 tf = TimezoneFinder()
@@ -45,10 +55,10 @@ sun_rs_next = sun_rise_set(n + 1, lon, lat)  # do the math for the next day
 j_rise = sun_rs[0] - sun_rs[1] + tz_h/24
 
 d_rise = julian.from_jd(j_rise)  # sunrise time in local dateime date (because we have added timezone correction)
-print(d_rise.strftime("Sunrise today: %m/%d/%Y %H:%M:%S"))
+print(d_rise.strftime("\n     Sunrise today: %m/%d/%Y %H:%M:%S"))
 j_rise_next = sun_rs_next[0] - sun_rs_next[1] + tz_h/24  # next day sunrise in Julian date, with timezone correction
 d_rise_next = julian.from_jd(j_rise_next)  # next day sunrise time in local date
-print(d_rise_next.strftime("Sunrise tomorrow: %m/%d/%Y %H:%M:%S"))
+print(d_rise_next.strftime("  Sunrise tomorrow: %m/%d/%Y %H:%M:%S"))
 j_set = sun_rs[0] + sun_rs[1] + tz_h/24
 
 print('\033[?25l')  # hide the cursor
