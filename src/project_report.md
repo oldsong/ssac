@@ -8,14 +8,14 @@ There are 2 Python programs:
 
 ## Install
 
-Install dependent Python librarys:
+Python librarys listed below must be installed:
 
 ```shell
 pip3 install pytz
 pip3 install julian
 pip3 install timezonefinder
 ```
-If your system doesn't have tinker, you must also install it, for example:
+If your system doesn't have Python tinker, you must also install it, for example:
 
 ```shell
 sudo apt-get install python3-tk
@@ -24,7 +24,7 @@ sudo apt-get install python3-tk
 
 ### alarm\_simple1.py
 
-Use -h argument to print the help message:
+This is a pure command line program. Use -h argument to print the help message:
 
 ```shell
 $ python alarm_simple1.py -h
@@ -58,9 +58,9 @@ $ python alarm_simple1.py --lat 34 --lon -118 -y 2020 -m 3 -d 12
 
 The program updates `Current time` roughly 25 times per second (25 ticks per second), and add 1 minutein every tick, so the simulation is about 1500x fast forward to a real clock.
 
-Note that the program can derive the correct time zone from the geolocation provided, thanks to Python library `timezonefinder`.
+The program can derive the correct time zone from the geolocation provided, thanks to Python library `timezonefinder`.
 
-When the `Current time` is after sunrise time, some lines will be displayed in reverse video mode:
+When the `Current time` is after sunrise time, the last 3 lines will be displayed in reverse video mode:
 
 ![reverse video mode after sunrise](../images/reverse_video.png)
 
@@ -70,14 +70,14 @@ Since the existence of polar day and polar night (no sunrise or sunset in these 
 
 ### tk\_clock.py
 
-Use -h argument to print the help message:
+This is an Python GUI program. Use -h argument to print the help message:
 
 ```shell
 $ python tk_clock.py -h
 usage: tk_clock.py [-h] [-y YEAR] [-m MONTH] [-d DAY] [--days DAYS]
                    [--int INT] [--lat LAT] [--lon LON]
 
-Sunrise simulator alarm clock for 30-50 degree north.
+Sunrise simulator alarm clock for latitude 24N - 55N.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -87,7 +87,7 @@ optional arguments:
   -d DAY, --day DAY     day of start date (1-31)
   --days DAYS           number of days to simulate (1-365)
   --int INT             number of days between each simulating days (1-365)
-  --lat LAT             observer latitude (30.0-50.0)
+  --lat LAT             observer latitude (24-55)
   --lon LON             observer longitude (-180.0-180.0)
 ```
 
@@ -106,11 +106,12 @@ For example, we choose to start at Dec 22th, 2020:
 ```shell
 $ python tk_clock.py -y 2020 -m 12 -d 22
 ```
-You will see something like below:
+
+We will get something like below:
 
 ![GUI sunrise clock](../images/sunrise_tk.png)
 
-The simulation run a tick every 80 microseconds and 15 minutes will be added, so roughly the animation is 11250x fast forward.
+The simulation runs a tick every 80 microseconds and 15 minutes will be added for each tick, so roughly the animation is 11250x fast forward.
 
 Since the scales of the X (azimuth) and Y (altitude) are fixed, we have to limit the obsever latitude to (24N, 55N) to make the sun position track contained inside the graph.
 
