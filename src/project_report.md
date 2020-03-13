@@ -137,42 +137,28 @@ We developed the sunrise Python algorithm according to the Wikipedia Sunrise equ
 
 [Sunrise equation - Wikipedia](https://en.wikipedia.org/wiki/Sunrise_equation)
 
+To plot the Sun position we need to convert the ecliptic coordinates to horizontal coordinates: 
 
 [Ecliptic coordinate system - Widipedia](https://en.wikipedia.org/wiki/Ecliptic_coordinate_system)
 
 
 ### Reference
 
-
-We can download spreadsheets that can be used to calculate solar data for a day or a year at a specified site from NOAA (National Oceanic and Atmospheric Administration) Solar Calculator page:
+The spreadsheets of NOAA (National Oceanic and Atmospheric Administration) Solar Calculator page can be used to calculate solar data for a day or a year at a specified site, we use it to verify our algorithm:
 
 [NOAA Solar Calculator](https://www.esrl.noaa.gov/gmd/grad/solcalc/calcdetails.html)
 
-### 时区处理
-有个 pytz 库
+### Time zone
 
-```shell
-pip3 install pytz
-```
+To show the sunrise time in local time, we need to find the correct time zone from the geolocation of the observer. We use timezonefinder and pytz to achive this:
 
-根据经纬度来找时区, 可以配合 pytz 来使用: 
+- [timezonefinder](https://pypi.org/project/timezonefinder/)
 
-https://github.com/MrMinimal64/timezonefinder
+- [pytz](https://pypi.org/project/pytz/)
 
-```shell
-pip3 install timezonefinder
-```
-
-```python
-from timezonefinder import TimezoneFinder
-
-tf = TimezoneFinder()
-latitude, longitude = 52.5061, 13.358
-tf.timezone_at(lng=longitude, lat=latitude) # returns 'Europe/Berlin'
-```
 ### User Interface
 
-#### 字符界面
+#### Terminal Interface
 
 如果用普通的 print, 每秒钟显示一行，则会造成屏幕上大量的输出，很难看。
 
@@ -180,7 +166,7 @@ tf.timezone_at(lng=longitude, lat=latitude) # returns 'Europe/Berlin'
 [ANSI escape code - Wikipedia](https://en.wikipedia.org/wiki/ANSI_escape_code)
 
 
-#### GUI 界面
+#### GUI
 用 Python 的 Tk 库 tkinter 似乎也不难, 比如下面这个数字时钟的例子: 
 
 [Python tkinter digital clock with little style](https://www.sourcecodester.com/tutorials/python/11402/python-simple-digital-clock.html)
@@ -188,4 +174,6 @@ tf.timezone_at(lng=longitude, lat=latitude) # returns 'Europe/Berlin'
 tkinter 缺少一个自带的日期时间控件, 可能可以用这个:
 
 [tkcalendar 的 DateEntry](https://tkcalendar.readthedocs.io/en/stable/DateEntry.html)
+
+## Debug
 
