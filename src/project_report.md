@@ -62,7 +62,7 @@ The program can derive the correct time zone from the geolocation provided, than
 
 When the `Current time` is after sunrise time, the last 3 lines will be displayed in reverse video mode:
 
-![reverse video mode after sunrise](../images/reverse_video.png)
+![reverse video mode after sunrise](reverse_video.png)
 
 The default parameters for the simulation are Mar 9th, 2020, 34.4N, -119.8E (UCSB).
 
@@ -109,7 +109,7 @@ $ python tk_clock.py -y 2020 -m 12 -d 22
 
 We will get something like below:
 
-![GUI sunrise clock](../images/sunrise_tk.png)
+![GUI sunrise clock](sunrise_tk.png)
 
 The simulation runs a tick every 80 microseconds and 15 minutes will be added for each tick, so roughly the animation is 11250x fast forward.
 
@@ -117,11 +117,11 @@ Since the scales of the X (azimuth) and Y (altitude) are fixed, we have to limit
 
 The observer is at latitude 55N:
 
-![Sun track at 55N](../images/sun_track_n55.png)
+![Sun track at 55N](sun_track_n55.png)
 
 The observer is at latitude 24N:
 
-![Sun track at 24N](../images/sun_track_n24.png)
+![Sun track at 24N](sun_track_n24.png)
 
 Actually if a northern hemisphere observer is at an latitude lower than 23.44N (Tropic of Cancer), he will notice that the Sun's azimuth points to north at some summer day noons. 
 
