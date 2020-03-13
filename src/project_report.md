@@ -2,9 +2,9 @@
 
 There are 2 Python programs:
 
-- alarm\_simple1.py: a terminal program simulates a digital clock for 1 day and shows sunrise time
+ - alarm\_simple1.py: a terminal program simulates a digital clock for 1 day and shows sunrise time
 
-- tk\_clock.py: a GUI program which shows sunrise, sunset time and simulates the Sun's position
+ - tk\_clock.py: a GUI program which shows sunrise, sunset time and simulates the Sun's position
 
 ## Install
 
@@ -135,45 +135,89 @@ Since there is only one sunrise per day, using real system clock is not practica
 
 We developed the sunrise Python algorithm according to the Wikipedia Sunrise equation page:
 
-[Sunrise equation - Wikipedia](https://en.wikipedia.org/wiki/Sunrise_equation)
+  [Sunrise equation - Wikipedia](https://en.wikipedia.org/wiki/Sunrise_equation)
 
-To plot the Sun position we need to convert the ecliptic coordinates to horizontal coordinates: 
+The function to calculate sunrise time is `sun_rise_set(n, lo, la)`:
 
-[Ecliptic coordinate system - Widipedia](https://en.wikipedia.org/wiki/Ecliptic_coordinate_system)
+```python
+# Calculate:
+#   solar transit time, in Julian day with fraction
+#   sunset hour angle, in fraction of Julian day
+#   declination of the Sun at the date, in radians
+# Input:
+#   n: number of days since Jan 1st, 2000 12:00
+#   lo: longitude (west is negative) of the observer on the Earth, in degree
+#   la: latitude of the observer on the Earth, north is positive, in degree
+def sun_rise_set(n, lo, la):
+```
 
+To plot the Sun position we need to convert the equatorial coordinates to horizontal coordinates: 
+
+  [Ecliptic coordinate system - Widipedia](https://en.wikipedia.org/wiki/Ecliptic_coordinate_system)
+
+The function to convert equtorial coordinates to horizontal coordinates:
+
+```python
+# Convert Equatorial coordinate to horizontal
+#   ha: hour angle, in fraction of a Julian day
+#   dec: declination, in radians
+#   la: latitude of the observer on the Earth, in degree
+# Return a tuple with 2 elements:
+#   0: azimuth, measured from the north, positive to east, in degree
+#   1: altitude, in degree
+def equ2hor(ha, dec, la):
+```
 
 ### Reference
 
 The spreadsheets of NOAA (National Oceanic and Atmospheric Administration) Solar Calculator page can be used to calculate solar data for a day or a year at a specified site, we use it to verify our algorithm:
 
-[NOAA Solar Calculator](https://www.esrl.noaa.gov/gmd/grad/solcalc/calcdetails.html)
+  [NOAA Solar Calculator](https://www.esrl.noaa.gov/gmd/grad/solcalc/calcdetails.html)
 
 ### Time zone
 
 To show the sunrise time in local time, we need to find the correct time zone from the geolocation of the observer. We use timezonefinder and pytz to achive this:
 
-- [timezonefinder](https://pypi.org/project/timezonefinder/)
+ - [timezonefinder](https://pypi.org/project/timezonefinder/)
 
-- [pytz](https://pypi.org/project/pytz/)
+ - [pytz](https://pypi.org/project/pytz/)
 
 ### User Interface
 
+GUI is much complicated than plain terminal interface, so we decide to first write a terminal one and if we still have time we will try to write a GUI.
+
 #### Terminal Interface
 
-如果用普通的 print, 每秒钟显示一行，则会造成屏幕上大量的输出，很难看。
+We found quickly that the result of naive python `print` is ugly when simulating a clock: the lines will build-up and scroll quickly.
 
+Fortunaltely we found this:
 
 [ANSI escape code - Wikipedia](https://en.wikipedia.org/wiki/ANSI_escape_code)
 
+ANSI escape codes have everything we want for a terminal alarm clock:
+
+ - move cursor up so we can write the updated data in the same lines instead of generating new lines and scroll
+
+ - show characters differently, for example we use reverse video effect
+
+ - hide cursor to make interface seems more clean
 
 #### GUI
-用 Python 的 Tk 库 tkinter 似乎也不难, 比如下面这个数字时钟的例子: 
 
-[Python tkinter digital clock with little style](https://www.sourcecodester.com/tutorials/python/11402/python-simple-digital-clock.html)
+We chose to use `tkinter` library after first studied PyQt, PySide for about 2 days. `tkinter` is much easier to use than those more powerful libraries.
 
-tkinter 缺少一个自带的日期时间控件, 可能可以用这个:
+This example tkinter digital clock gave us a good start:
 
-[tkcalendar 的 DateEntry](https://tkcalendar.readthedocs.io/en/stable/DateEntry.html)
+[Python tkinter simple digital clock](https://www.sourcecodester.com/tutorials/python/11402/python-simple-digital-clock.html)
+
+We found the Canvas widget of tkinter is not as hard as we thought to study. So we use it to build a sun animation.
 
 ## Debug
 
+When somthing is wrong, `print` is our best friend. Some of the bugs we solved:
+
+ - `timezonefinder` failed to find a timezone for some geolocations. To solve the problem, we write afunction to calculate a standard timezone to catch the case that `timezonefinder` or `pytz` fail
+
+ - the algorithms will crash for some input values. We analyzed what kind of input values will cause the crash: values related to polar circle or tropic of canser, etc. We write argument checking code to avoid these cases.
+
+ - the size of some tkinter widgets vary annoyingly when the text content of the widgets vary. Simply set a fixed `width` attribute solve the problem.
