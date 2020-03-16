@@ -201,7 +201,9 @@ pip3 install npyscreen
 sudo apt install python3-tk
 ```
 
-***Modern Tkinter for Busy Python Developers*** 这本书不错, 其 PDF 版在本目录中可以找到.
+Modern Tkinter for Busy Python Developers
+
+这本书不错, 其 PDF 版在本目录中可以找到.
 
 tkinter 缺少一个自带的日期时间控件, 可能可以用这个:
 
@@ -252,3 +254,15 @@ tf.timezone_at(lng=longitude, lat=latitude) # returns 'Europe/Berlin'
 ```
 
 这个库挺大的, 因为它实际上包含很多多边形数据用于判断时区. 问题在于它对于很多地方会返回空, 可能大部分是在公海, 所以如果返回空就按经度进行计算: 每 15 度是一个时区的中央经线, 中央经线左右各 7.5 度是同一个时区.
+
+---
+Skyfield 是个不错的 Python 库：
+
+```shell
+pip install skyfield
+```
+
+(Skyfield document)[https://rhodesmill.org/skyfield/toc.html]
+
+
+
